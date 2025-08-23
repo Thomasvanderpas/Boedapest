@@ -7,6 +7,62 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Extra styles voor ‘geclaimd’ variant -->
+  <style>
+    /* Badge/lock look */
+    .task-row.claimed {
+      position: relative;
+      opacity: .65;
+      filter: grayscale(.15);
+      border: 2px dashed #b91c1c; /* rood */
+      background: repeating-linear-gradient(45deg, rgba(185, 28, 28, .08) 0 12px, rgba(0,0,0,0) 12px 24px);
+      pointer-events: none; /* niet te ‘pakken’ */
+    }
+    .task-row.claimed::after {
+      content: "GECLAIMD";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: #fff;
+      background: #b91c1c;
+      border-radius: 9999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+      text-transform: uppercase;
+    }
+    .task-row.claimed .task-content h3 {
+      text-decoration: line-through;
+    }
+    .task-row.claimed .task-content p::before {
+      content: "Niet meer beschikbaar";
+      display: inline-block;
+      margin-right: 6px;
+      font-weight: 600;
+      color: #7f1d1d;
+    }
+    /* Klein legendetje */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      margin: 10px 0 20px;
+      color: #444;
+    }
+    .legend .legend-pill {
+      position: relative;
+      height: 18px;
+      width: 80px;
+      border-radius: 9999px;
+      background: #b91c1c;
+      opacity: .85;
+    }
+    .legend .legend-label { font-weight: 600; }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -49,7 +105,9 @@
           <h2 class="week-title">🎉 Week 1 Opdrachten zijn Nu Beschikbaar!</h2>
           <h3 class="theme-heading">🎯 Thema: Drank</h3>
 
-          <div class="task-row">
+
+
+          <div class="task-row" data-task-id="w1-5atjes">
             <div class="task-content">
               <h3>5 atjes op een avond inclusief videoproof</h3>
               <p></p>
@@ -57,7 +115,8 @@
             <div class="task-score">5 pt</div>
           </div>
 
-          <div class="task-row">
+          <!-- XL Turbo: gemarkeerd als geclaimd -->
+          <div class="task-row" data-task-id="w1-xlturbo" aria-disabled="true">
             <div class="task-content">
               <h3>Maak een XL Turbo shot voor jezelf en stuur een video dat je 'm neemt</h3>
               <p></p>
@@ -65,7 +124,7 @@
             <div class="task-score">4 pt</div>
           </div>
 
-          <div class="task-row">
+          <div class="task-row" data-task-id="w1-gasolina">
             <div class="task-content">
               <h3>Gasolina met cola voor de color (normaal glas) met bijbehorende video</h3>
               <p></p>
@@ -73,7 +132,7 @@
             <div class="task-score">3 pt</div>
           </div>
 
-          <div class="task-row">
+          <div class="task-row" data-task-id="w1-tripel">
             <div class="task-content">
               <h3>Atje tripel/cocktail &gt;10% met bewijsmateriaal</h3>
               <p></p>
@@ -81,7 +140,7 @@
             <div class="task-score">2 pt</div>
           </div>
 
-          <div class="task-row">
+          <div class="task-row" data-task-id="w1-2shots">
             <div class="task-content">
               <h3>2 shotjes b2b (vrije keuze welke) wij willen een video</h3>
               <p></p>
@@ -115,31 +174,31 @@
 
         <div id="week2Tasks" class="week-tasks" style="display:none;">
           <h2 class="week-title">🎮 Week 2 – Game Week Opdrachten</h2>
-          <div class="task-row">
+          <div class="task-row" data-task-id="w2-cosplay">
             <div class="task-content">
               <h3>Doe een Cosplay van een karakter uit een game</h3>
             </div>
             <div class="task-score">5 pt</div>
           </div>
-          <div class="task-row">
+          <div class="task-row" data-task-id="w2-legendary">
             <div class="task-content">
               <h3>Pull een legendary uit een (gouden) kist Clash Royale</h3>
             </div>
             <div class="task-score">4 pt</div>
           </div>
-          <div class="task-row">
+          <div class="task-row" data-task-id="w2-zwaarden">
             <div class="task-content">
               <h3>Versla 2 champions in Zwaarden en Sandalen 2</h3>
             </div>
             <div class="task-score">3 pt</div>
           </div>
-          <div class="task-row">
+          <div class="task-row" data-task-id="w2-bro">
             <div class="task-content">
               <h3>Win een battle royale</h3>
             </div>
             <div class="task-score">2 pt</div>
           </div>
-          <div class="task-row">
+          <div class="task-row" data-task-id="w2-stumble">
             <div class="task-content">
               <h3>Win een potje Stumble Guys (telefoon)</h3>
             </div>
@@ -583,6 +642,25 @@
     }
 
     // ================================
+    // GECLAIMD VARIANT (generiek)
+    // ================================
+    // Voeg hier de task-id's toe die geclaimd zijn (permanente lock)
+    const claimedTaskIds = [
+      'w1-xlturbo', // XL Turbo Shot is geclaimd
+    ];
+
+    function applyClaimedStyles() {
+      claimedTaskIds.forEach(id => {
+        const el = document.querySelector(`[data-task-id="${id}"]`);
+        if (el && !el.classList.contains('claimed')) {
+          el.classList.add('claimed');
+          el.setAttribute('aria-disabled', 'true');
+          el.setAttribute('title', 'Geclaimd – niet meer beschikbaar');
+        }
+      });
+    }
+
+    // ================================
     // PREVIEW MODE
     // ================================
     function activatePreviewMode() {
@@ -638,6 +716,9 @@
       document.getElementById('passwordModal').addEventListener('click', function (e) {
         if (e.target === this) closePasswordModal();
       });
+
+      // Pas geclaimde variant toe
+      applyClaimedStyles();
     });
   </script>
 </body>
